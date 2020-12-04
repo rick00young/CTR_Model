@@ -3,6 +3,8 @@ import tensorflow as tf
 import pandas as pd
 import numpy as np
 
+import matplotlib.pyplot as plt
+
 from tensorflow import keras
 from tensorflow.keras import layers
 import pickle
@@ -96,7 +98,6 @@ batch_size = 32
 feature_size = 13104
 field_size = len(ids[0])
 embedding_size = 32
-batch_size = 32
 num_epochs = 10
 epochs = 60
 
@@ -127,18 +128,12 @@ def create_network():
                             name='fm_v')
 
     # bias = layers.Layer().add_weight(name='fm_bias', initializer='zero', shape=[1])
-    bias = tf.Variable(name='fm_bias', initial_value=[0.0], shape=[1], trainable=True)
-    # tf.Variable
+    bias = tf.Variable(name='fm_bias', initial_value=[0.0], shape=[1], trainable=True, dtype=tf.float32)
 
     # # first order
     feature_weights = fm_w(feature_ids_input)
     y_w = tf.reduce_sum(tf.multiply(feature_weights, feature_values_input, name='fm_1-1_multiply'),
                         1, name='fm_1-2_sum')
-
-    # output = tf.math.sigmoid(y_w)
-    # model = tf.keras.Model(inputs=[feature_ids_input, feature_vals_input], outputs=output)
-    # model.summary()
-
     # second order
     embeddings = fm_v(feature_ids_input)
     embeddings = tf.multiply(embeddings, feature_values_input, name='fm_2-1_multiply')
@@ -147,15 +142,9 @@ def create_network():
     y_v = 0.5 * tf.reduce_sum(tf.subtract(sum_square, square_sum, name='fm_2-6_subtract'), axis=1, name='fm_2-7_sum',
                               keepdims=True)
 
-    # y = layers.concatenate([y_w, y_v, FM_B])
-    # y_output = layers.Reshape(target_shape=(1,))(y_w + y_v + bias)
     y_output = y_w + y_v + bias
 
-    # output = layers.Dense(1, activation='sigmoid', name='fm_output')(y_output)
     output = tf.math.sigmoid(y_output)
-    # loss = tf.losses.binary_crossentropy(label, )
-
-    #
     model = tf.keras.Model(inputs=[feature_ids_input, feature_vals_input], outputs=output)
     model.summary()
     return model
@@ -171,8 +160,26 @@ def train():
                   metrics=['accuracy']
                   )
     history = model.fit(
-        train_dataset, epochs=epochs, callbacks=callbacks, validation_data=test_dataset, batch_size=32
+        train_dataset, epochs=epochs, callbacks=callbacks, validation_data=test_dataset, batch_size=batch_size
     )
+    plot_model(history)
+
+def plot_model(history):
+    plt.plot(history.history['accuracy'])
+    plt.plot(history.history['val_accuracy'])
+    plt.title('model accuracy')
+    plt.ylabel('accuracy')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.show()
+    # summarize history for loss
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title('model loss')
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.show()
 
 
 if '__main__' == __name__:
