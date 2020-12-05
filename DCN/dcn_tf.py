@@ -119,11 +119,9 @@ def create_network():
     _x0 = layers.Reshape(target_shape=(total_size, 1))(x0)
     x_l = _x0
     for i in range(cross_layer_num):
-        x_l = tf.matmul(_x0, x_l, transpose_b=True, name='cross_matmul_%s' % i)
-        # cross_weight = tf.Variable(shape=(total_size, 1), )
-        # cross_weight =
-        # x_l = tf.tensordot(x_l, )
-        x_l = layers.Dense(units=1, use_bias=True, name='cross_dense_%s' % i)(x_l)
+        _x_l = tf.matmul(_x0, x_l, transpose_b=True, name='cross_matmul_%s' % i)
+        _x_l = layers.Dense(units=1, use_bias=True, name='cross_dense_%s' % i)(_x_l)
+        x_l = _x_l + x_l
 
     cross_network_out = layers.Reshape(target_shape=(total_size,))(x_l)
 
