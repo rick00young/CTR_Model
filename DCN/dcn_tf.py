@@ -10,7 +10,6 @@ DCN能够有效地捕获有限度的有效特征的相互作用，学会高度�
 4）实验结果表明，交叉网络（DCN）在LogLoss上与DNN相比少了近一个量级的参数量。
 '''
 
-
 import tensorflow as tf
 
 import pandas as pd
@@ -27,10 +26,6 @@ except Exception as e:
     from DataLoader import FeatureDictionary, DataParser
 
 from tensorflow.keras import layers
-
-
-
-
 
 def load_data():
     dfTrain = pd.read_csv(config.TRAIN_FILE)
@@ -66,16 +61,9 @@ fd = FeatureDictionary(dfTrain, dfTest, numeric_cols=config.NUMERIC_COLS,
 print(fd.feat_dim)
 print(fd.feat_dict)
 
-
-def run_model():
-    pass
-
-
 data_parser = DataParser(feat_dict=fd)
 cate_Xi_train, cate_Xv_train, numeric_Xv_train, y_train = data_parser.parse(df=dfTrain, has_label=True)
 # cate_Xi_test, cate_Xv_test, numeric_Xv_test, y_test, ids_test = data_parser.parse(df=dfTest)
-
-
 
 # one hot前特征数
 field_size = len(cate_Xv_train[0])
@@ -103,7 +91,7 @@ train_dataset = tf.data.Dataset.from_tensor_slices((cate_Xi_train, cate_Xv_train
 # test_dataset = tf.data.Dataset.from_tensor_slices((cate_Xi_test, cate_Xv_test, numeric_Xv_test, y_test)).\
 #     map(process).batch(batch_size=batch_size)
 
-def create_network()
+def create_network():
     feat_index_input = layers.Input((field_size, ), dtype=tf.int32, name='feat_index')
     feat_value_input = layers.Input((field_size,), dtype=tf.float32, name='feat_value')
     feat_value_input_r = layers.Reshape(target_shape=(field_size, 1), name='feat_value_reshape')(feat_value_input)
@@ -168,7 +156,6 @@ def train():
     history = model.fit(
         train_dataset, epochs=epochs, callbacks=callbacks, batch_size=batch_size
     )
-
 
 if '__main__' == __name__:
     train()
